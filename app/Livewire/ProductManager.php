@@ -187,10 +187,17 @@ class ProductManager extends Component
     public function deleteProduct(): void
     {
         if ($this->deletingProductId) {
-            Product::where('id', $this->deletingProductId)->delete();
+            try {
+                Product::where('id', $this->deletingProductId)->delete();
+                $this->closeDeleteModal();
+            } catch (\Illuminate\Database\QueryException $e) {
+                // If it fails due to foreign key constraints, we catch it
+                $this->dispatch('alert', type: 'error', message: 'Gagal dihapus: Produk ini sudah memiliki riwayat transaksi.');
+                $this->closeDeleteModal();
+            }
+        } else {
+            $this->closeDeleteModal();
         }
-
-        $this->closeDeleteModal();
     }
 
     // ─── Helpers ────────────────────────────────────────────────
