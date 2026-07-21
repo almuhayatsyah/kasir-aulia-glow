@@ -6,7 +6,7 @@
         {{-- Logo & Title --}}
         <div class="mb-8 text-center">
             <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-lg shadow-pink-500/10">
-                <img src="{{ Vite::asset('resources/img/logoaulia.png') }}" alt="Aulia Glow" class="h-14 w-14 object-contain">
+                <img src="{{ asset('img/logoaulia.png') }}" alt="Aulia Glow" class="h-14 w-14 object-contain">
             </div>
             <h1 class="text-2xl font-extrabold tracking-tight text-slate-800">Aulia Glow</h1>
             <p class="mt-1 text-sm text-slate-400">Masuk sebagai Owner untuk mengelola toko</p>

@@ -23,7 +23,7 @@
 
             {{-- Logo --}}
             <a href="{{ route('pos') }}" class="mb-6">
-                <img src="{{ Vite::asset('resources/img/logoaulia.png') }}" alt="Aulia Glow" class="h-11 w-11 rounded-xl object-contain shadow-md">
+                <img src="{{ asset('img/logoaulia.png') }}" alt="Aulia Glow" class="h-11 w-11 rounded-xl object-contain shadow-md">
             </a>
 
             {{-- Nav Items --}}
