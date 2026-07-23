@@ -212,7 +212,6 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-            x-on:keydown.escape.window="$wire.closeModal()"
         >
             {{-- Modal Content --}}
             <div
@@ -220,7 +219,6 @@
                 x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                x-on:click.outside="$wire.closeModal()"
                 class="w-full max-w-lg rounded-2xl bg-white shadow-2xl"
             >
                 {{-- Modal Header --}}
