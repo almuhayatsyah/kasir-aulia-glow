@@ -3,6 +3,32 @@
     x-on:reprint-receipt.window="$nextTick(() => window.print())"
     class="flex h-screen flex-col overflow-hidden bg-slate-50"
 >
+
+    {{-- ═══ TOAST NOTIFICATION ═══ --}}
+    @if($toastMessage)
+        <div
+            x-data="{ show: true }"
+            x-show="show"
+            x-init="setTimeout(() => { show = false; $wire.dismissToast() }, 4000)"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-[-1rem]"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-[-1rem]"
+            class="fixed top-4 right-4 z-[60] flex items-center gap-3 rounded-xl px-5 py-3 shadow-xl {{ $toastType === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white' }}"
+        >
+            @if($toastType === 'success')
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            @else
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            @endif
+            <span class="text-sm font-semibold">{{ $toastMessage }}</span>
+            <button x-on:click="show = false; $wire.dismissToast()" class="ml-2 shrink-0 rounded-lg p-1 transition hover:bg-white/20">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+    @endif
     {{-- ═══ HEADER ═══ --}}
     <header class="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-3 shadow-sm">
         <div>
@@ -141,6 +167,15 @@
                                 >
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                    </svg>
+                                </button>
+                                <button
+                                    wire:click="confirmDelete({{ $trx->id }})"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600 active:scale-95"
+                                    title="Hapus Transaksi"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
                             </div>
@@ -282,6 +317,60 @@
                             Cetak Ulang Struk
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ═══ DELETE CONFIRMATION MODAL ═══ --}}
+    @if($showDeleteModal)
+        <div
+            x-data="{ open: true }"
+            x-show="open"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        >
+            <div
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
+            >
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+
+                <h3 class="text-lg font-bold text-slate-800">Hapus Transaksi?</h3>
+                <p class="mt-2 text-sm text-slate-500">
+                    Transaksi <strong class="text-slate-700">{{ $deletingTransactionCode }}</strong> akan dihapus permanen dan <strong class="text-emerald-600">stok produk akan dikembalikan</strong>.
+                </p>
+                <p class="mt-1 text-xs text-red-400">Tindakan ini tidak bisa dibatalkan.</p>
+
+                <div class="mt-5 flex items-center justify-end gap-3">
+                    <button
+                        wire:click="closeDeleteModal"
+                        class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-95"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        wire:click="deleteTransaction"
+                        wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-95 disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="deleteTransaction">Ya, Hapus</span>
+                        <span wire:loading wire:target="deleteTransaction" class="flex items-center gap-2">
+                            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Menghapus...
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>

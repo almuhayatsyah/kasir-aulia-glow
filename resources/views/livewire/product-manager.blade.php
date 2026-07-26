@@ -1,5 +1,30 @@
 <div class="flex h-screen flex-col overflow-hidden bg-slate-50">
 
+    {{-- ═══ TOAST NOTIFICATION ═══ --}}
+    @if($toastMessage)
+        <div
+            x-data="{ show: true }"
+            x-show="show"
+            x-init="setTimeout(() => { show = false; $wire.dismissToast() }, 4000)"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-[-1rem]"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-[-1rem]"
+            class="fixed top-4 right-4 z-[60] flex items-center gap-3 rounded-xl px-5 py-3 shadow-xl {{ $toastType === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white' }}"
+        >
+            @if($toastType === 'success')
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            @else
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            @endif
+            <span class="text-sm font-semibold">{{ $toastMessage }}</span>
+            <button x-on:click="show = false; $wire.dismissToast()" class="ml-2 shrink-0 rounded-lg p-1 transition hover:bg-white/20">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+    @endif
     {{-- ═══ HEADER ═══ --}}
     <header class="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-3 shadow-sm">
         <div>

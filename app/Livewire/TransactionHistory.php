@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Models\Product;
 use App\Models\Transaction;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -51,6 +53,20 @@ class TransactionHistory extends Component
     public string $selectedTime = '';
 
     public string $activePreset = 'bulan';
+
+    // ─── Delete Modal ───────────────────────────────────────────
+
+    public bool $showDeleteModal = false;
+
+    public ?int $deletingTransactionId = null;
+
+    public string $deletingTransactionCode = '';
+
+    // ─── Toast Notification ─────────────────────────────────────
+
+    public string $toastMessage = '';
+
+    public string $toastType = '';
 
     // ─── Lifecycle ──────────────────────────────────────────────
 
@@ -125,6 +141,65 @@ class TransactionHistory extends Component
         $this->showDetail = false;
         $this->selectedTransactionId = null;
         $this->selectedDetails = [];
+    }
+
+    // ─── Delete Transaction ─────────────────────────────────────
+
+    public function confirmDelete(int $transactionId): void
+    {
+        $transaction = Transaction::findOrFail($transactionId);
+        $this->deletingTransactionId = $transaction->id;
+        $this->deletingTransactionCode = '#' . str_pad((string) $transaction->id, 5, '0', STR_PAD_LEFT);
+        $this->showDeleteModal = true;
+    }
+
+    public function deleteTransaction(): void
+    {
+        if (! $this->deletingTransactionId) {
+            $this->closeDeleteModal();
+            return;
+        }
+
+        try {
+            DB::transaction(function (): void {
+                $transaction = Transaction::with('details')->findOrFail($this->deletingTransactionId);
+
+                // Restore product stock for each detail
+                foreach ($transaction->details as $detail) {
+                    Product::where('id', $detail->product_id)
+                        ->increment('stock', $detail->qty);
+                }
+
+                // Delete all details then the transaction
+                $transaction->details()->delete();
+                $transaction->delete();
+            });
+
+            $this->setToast('Transaksi ' . $this->deletingTransactionCode . ' berhasil dihapus. Stok produk telah dikembalikan.', 'success');
+        } catch (\Exception $e) {
+            $this->setToast('Gagal menghapus transaksi. Silakan coba lagi.', 'error');
+        }
+
+        $this->closeDeleteModal();
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deletingTransactionId = null;
+        $this->deletingTransactionCode = '';
+    }
+
+    private function setToast(string $message, string $type): void
+    {
+        $this->toastMessage = $message;
+        $this->toastType = $type;
+    }
+
+    public function dismissToast(): void
+    {
+        $this->toastMessage = '';
+        $this->toastType = '';
     }
 
     public function reprintReceipt(int $transactionId): void

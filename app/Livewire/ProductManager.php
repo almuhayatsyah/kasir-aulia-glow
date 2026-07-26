@@ -57,6 +57,12 @@ class ProductManager extends Component
 
     public string $exp_date = '';
 
+    // ─── Toast Notification ─────────────────────────────────────
+
+    public string $toastMessage = '';
+
+    public string $toastType = '';
+
     // ─── Lifecycle ──────────────────────────────────────────────
 
     public function updatedSearch(): void
@@ -177,8 +183,10 @@ class ProductManager extends Component
 
         if ($this->editingProductId) {
             Product::where('id', $this->editingProductId)->update($data);
+            $this->setToast('Produk "' . $data['name'] . '" berhasil diperbarui.', 'success');
         } else {
             Product::create($data);
+            $this->setToast('Produk "' . $data['name'] . '" berhasil ditambahkan.', 'success');
         }
 
         $this->closeModal();
@@ -188,16 +196,29 @@ class ProductManager extends Component
     {
         if ($this->deletingProductId) {
             try {
+                $productName = $this->deletingProductName;
                 Product::where('id', $this->deletingProductId)->delete();
                 $this->closeDeleteModal();
+                $this->setToast('Produk "' . $productName . '" berhasil dihapus.', 'success');
             } catch (\Illuminate\Database\QueryException $e) {
-                // If it fails due to foreign key constraints, we catch it
-                $this->dispatch('alert', type: 'error', message: 'Gagal dihapus: Produk ini sudah memiliki riwayat transaksi.');
                 $this->closeDeleteModal();
+                $this->setToast('Gagal dihapus: Produk ini sudah memiliki riwayat transaksi.', 'error');
             }
         } else {
             $this->closeDeleteModal();
         }
+    }
+
+    private function setToast(string $message, string $type): void
+    {
+        $this->toastMessage = $message;
+        $this->toastType = $type;
+    }
+
+    public function dismissToast(): void
+    {
+        $this->toastMessage = '';
+        $this->toastType = '';
     }
 
     // ─── Helpers ────────────────────────────────────────────────
