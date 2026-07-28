@@ -143,7 +143,11 @@
                 @forelse($products as $product)
                     <tr class="group transition-colors hover:bg-slate-50/80" wire:key="product-{{ $product->id }}">
                         <td class="px-6 py-3">
-                            <code class="rounded bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-600">{{ $product->barcode }}</code>
+                            @if($product->barcode)
+                                <code class="rounded bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-600">{{ $product->barcode }}</code>
+                            @else
+                                <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-400 italic">Tanpa barcode</span>
+                            @endif
                         </td>
                         <td class="px-6 py-3">
                             <p class="font-semibold text-slate-700">{{ $product->name }}</p>
@@ -268,14 +272,19 @@
                     <div class="grid grid-cols-2 gap-4">
                         {{-- Barcode --}}
                         <div class="col-span-1">
-                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Barcode <span class="text-red-400">*</span></label>
+                            <label class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                Barcode <span class="text-slate-300 font-normal normal-case">(Opsional)</span>
+                            </label>
                             <input
                                 type="text"
                                 wire:model="barcode"
-                                placeholder="Scan atau ketik barcode"
+                                placeholder="Scan atau ketik barcode..."
                                 class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm transition focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100 {{ $errors->has('barcode') ? 'border-red-300 bg-red-50' : '' }}"
                             >
                             @error('barcode') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            @if(!$errors->has('barcode'))
+                                <p class="mt-1 text-xs text-slate-400">Kosongkan jika produk tidak memiliki barcode.</p>
+                            @endif
                         </div>
 
                         {{-- Category --}}

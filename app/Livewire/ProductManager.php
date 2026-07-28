@@ -140,10 +140,10 @@ class ProductManager extends Component
     {
         $rules = [
             'barcode' => [
-                'required',
+                'nullable',
                 'string',
                 'max:50',
-                Rule::unique('products', 'barcode')->ignore($this->editingProductId),
+                Rule::unique('products', 'barcode')->ignore($this->editingProductId)->whereNotNull('barcode'),
             ],
             'name' => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
@@ -154,7 +154,6 @@ class ProductManager extends Component
         ];
 
         $messages = [
-            'barcode.required' => 'Barcode wajib diisi.',
             'barcode.unique' => 'Barcode sudah digunakan produk lain.',
             'name.required' => 'Nama produk wajib diisi.',
             'hpp_price.required' => 'Harga HPP wajib diisi.',
@@ -171,8 +170,13 @@ class ProductManager extends Component
 
         $validated = $this->validate($rules, $messages);
 
+        // Jika barcode kosong, auto-generate kode unik
+        $barcode = !empty(trim($validated['barcode'] ?? ''))
+            ? trim($validated['barcode'])
+            : null;
+
         $data = [
-            'barcode' => $validated['barcode'],
+            'barcode' => $barcode,
             'name' => $validated['name'],
             'category' => $validated['category'] ?: null,
             'hpp_price' => (int) $validated['hpp_price'],
