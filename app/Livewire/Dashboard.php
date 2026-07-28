@@ -152,12 +152,16 @@ class Dashboard extends Component
 
     // ─── Product & Transaction Counts ───────────────────────────
 
-    /** @return array{total_produk: int, total_stok: int} */
+    /** @return array{total_produk: int, total_stok: int, total_modal: int, total_nilai_jual: int} */
     private function getInventoryStats(): array
     {
+        $products = Product::query()->get();
+
         return [
-            'total_produk' => Product::count(),
-            'total_stok' => (int) Product::sum('stock'),
+            'total_produk'     => $products->count(),
+            'total_stok'       => (int) $products->sum('stock'),
+            'total_modal'      => (int) $products->sum(fn ($p) => $p->hpp_price * $p->stock),
+            'total_nilai_jual' => (int) $products->sum(fn ($p) => $p->sell_price * $p->stock),
         ];
     }
 
