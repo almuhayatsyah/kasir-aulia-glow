@@ -249,6 +249,21 @@ class ProductManager extends Component
             ->toArray();
     }
 
+    // ─── Inventory Summary ───────────────────────────────────────
+
+    /** @return array{total_jenis: int, total_stok: int, total_modal: int, total_nilai_jual: int} */
+    private function getInventorySummary(): array
+    {
+        $products = Product::query()->get();
+
+        return [
+            'total_jenis'      => $products->count(),
+            'total_stok'       => (int) $products->sum('stock'),
+            'total_modal'      => (int) $products->sum(fn ($p) => $p->hpp_price * $p->stock),
+            'total_nilai_jual' => (int) $products->sum(fn ($p) => $p->sell_price * $p->stock),
+        ];
+    }
+
     // ─── Render ─────────────────────────────────────────────────
 
     public function render(): View
@@ -267,8 +282,9 @@ class ProductManager extends Component
             ->paginate(15);
 
         return view('livewire.product-manager', [
-            'products' => $products,
+            'products'   => $products,
             'categories' => $this->getCategories(),
+            'summary'    => $this->getInventorySummary(),
         ]);
     }
 }

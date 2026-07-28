@@ -48,6 +48,73 @@
         </button>
     </header>
 
+    {{-- ═══ INVENTORY SUMMARY CARDS ═══ --}}
+    <div class="grid shrink-0 grid-cols-4 gap-4 border-b border-slate-100 bg-white px-6 py-4">
+        {{-- Total Jenis Produk --}}
+        <div class="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-blue-400">Jenis Produk</p>
+                    <p class="mt-1 text-2xl font-extrabold text-blue-700">{{ number_format($summary['total_jenis']) }}</p>
+                    <p class="text-xs text-blue-400">Terdaftar di sistem</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
+                    <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        {{-- Total Stok Unit --}}
+        <div class="relative overflow-hidden rounded-xl border border-violet-100 bg-gradient-to-br from-violet-50 to-purple-50 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-violet-400">Total Stok</p>
+                    <p class="mt-1 text-2xl font-extrabold text-violet-700">{{ number_format($summary['total_stok']) }}</p>
+                    <p class="text-xs text-violet-400">Unit di gudang</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
+                    <svg class="h-5 w-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        {{-- Total Modal (HPP × Stok) --}}
+        <div class="relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-amber-500">Total Modal</p>
+                    <p class="mt-1 text-xl font-extrabold text-amber-700">Rp {{ number_format($summary['total_modal'], 0, ',', '.') }}</p>
+                    <p class="text-xs text-amber-400">HPP × Stok semua produk</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+                    <svg class="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        {{-- Total Nilai Jual (Harga Jual × Stok) --}}
+        <div class="relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-green-50 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Potensi Omzet</p>
+                    <p class="mt-1 text-xl font-extrabold text-emerald-700">Rp {{ number_format($summary['total_nilai_jual'], 0, ',', '.') }}</p>
+                    <p class="text-xs text-emerald-400">Harga jual × Stok semua produk</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                    <svg class="h-5 w-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- ═══ SEARCH & FILTER BAR ═══ --}}
     <div class="flex shrink-0 items-center gap-3 border-b border-slate-100 bg-white px-6 py-3">
         {{-- Search --}}
