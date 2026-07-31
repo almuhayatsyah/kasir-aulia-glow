@@ -140,16 +140,13 @@
                             <span class="rounded-md bg-slate-100 px-2 py-1 text-sm font-bold text-slate-700">#{{ str_pad((string) $trx->id, 5, '0', STR_PAD_LEFT) }}</span>
                         </td>
                         <td class="px-6 py-3">
-                            <div class="max-w-xs space-y-0.5">
-                                @foreach($trx->details->take(2) as $detail)
-                                    <p class="truncate text-xs font-semibold text-slate-700">
-                                        {{ $detail->product?->name ?? 'Produk dihapus' }}
-                                        <span class="text-slate-400 font-normal">({{ $detail->qty }}x)</span>
+                            <div class="max-w-md space-y-1">
+                                @foreach($trx->details as $detail)
+                                    <p class="text-xs font-semibold text-slate-700">
+                                        • {{ $detail->product?->name ?? 'Produk dihapus' }}
+                                        <span class="text-slate-500 font-normal">({{ $detail->qty }}x)</span>
                                     </p>
                                 @endforeach
-                                @if($trx->details->count() > 2)
-                                    <p class="text-[11px] font-medium text-pink-600">+{{ $trx->details->count() - 2 }} item lainnya</p>
-                                @endif
                             </div>
                         </td>
                         <td class="px-6 py-3">
