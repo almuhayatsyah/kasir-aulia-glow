@@ -253,9 +253,17 @@ class TransactionHistory extends Component
     public function render(): View
     {
         $transactions = Transaction::query()
+            ->with(['details.product'])
             ->when($this->dateFrom, fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
             ->when($this->dateTo, fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
-            ->when($this->search, fn ($q) => $q->where('id', 'like', '%' . $this->search . '%'))
+            ->when($this->search, function ($q): void {
+                $q->where(function ($sub): void {
+                    $sub->where('id', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('details.product', function ($p): void {
+                            $p->where('name', 'like', '%' . $this->search . '%');
+                        });
+                });
+            })
             ->latest()
             ->paginate(20);
 

@@ -125,6 +125,7 @@
             <thead class="sticky top-0 z-10 bg-slate-50">
                 <tr class="text-left text-xs font-semibold uppercase tracking-wider text-slate-400">
                     <th class="px-6 py-3">No. Transaksi</th>
+                    <th class="px-6 py-3">Nama Produk</th>
                     <th class="px-6 py-3">Tanggal & Waktu</th>
                     <th class="px-6 py-3 text-right">Total Penjualan</th>
                     <th class="px-6 py-3 text-right">HPP</th>
@@ -139,9 +140,23 @@
                             <span class="rounded-md bg-slate-100 px-2 py-1 text-sm font-bold text-slate-700">#{{ str_pad((string) $trx->id, 5, '0', STR_PAD_LEFT) }}</span>
                         </td>
                         <td class="px-6 py-3">
+                            <div class="max-w-xs space-y-0.5">
+                                @foreach($trx->details->take(2) as $detail)
+                                    <p class="truncate text-xs font-semibold text-slate-700">
+                                        {{ $detail->product?->name ?? 'Produk dihapus' }}
+                                        <span class="text-slate-400 font-normal">({{ $detail->qty }}x)</span>
+                                    </p>
+                                @endforeach
+                                @if($trx->details->count() > 2)
+                                    <p class="text-[11px] font-medium text-pink-600">+{{ $trx->details->count() - 2 }} item lainnya</p>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-6 py-3">
                             <p class="text-sm font-medium text-slate-700">{{ $trx->created_at->format('d/m/Y') }}</p>
                             <p class="text-xs text-slate-400">{{ $trx->created_at->format('H:i:s') }}</p>
                         </td>
+                        
                         <td class="px-6 py-3 text-right text-sm font-semibold text-slate-700">
                             Rp {{ number_format($trx->total_amount, 0, ',', '.') }}
                         </td>
@@ -188,7 +203,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-16 text-center">
+                        <td colspan="7" class="px-6 py-16 text-center">
                             <svg class="mx-auto mb-4 h-16 w-16 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
