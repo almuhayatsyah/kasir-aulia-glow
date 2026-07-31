@@ -48,8 +48,8 @@
                         wire:keydown.enter="processSearch"
                         x-ref="barcodeInput"
                         x-init="$el.focus()"
-                        x-on:scan-barcode-done.window="$nextTick(() => $el.focus())"
-                        x-on:blur="if (!showPaymentModal) setTimeout(() => $el.focus(), 100)"
+                        x-on:scan-barcode-done.window="$nextTick(() => { const tag = document.activeElement?.tagName; if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') $el.focus(); })"
+                        x-on:blur="setTimeout(() => { const tag = document.activeElement?.tagName; const isOtherInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'; if (!showPaymentModal && !isOtherInput) $el.focus(); }, 150)"
                         autofocus
                         autocomplete="off"
                         placeholder="Scan barcode ATAU ketik nama produk di sini..."
