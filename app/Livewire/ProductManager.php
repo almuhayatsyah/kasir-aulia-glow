@@ -101,7 +101,7 @@ class ProductManager extends Component
         $product = Product::findOrFail($productId);
 
         $this->editingProductId = $product->id;
-        $this->barcode = $product->barcode;
+        $this->barcode = $product->barcode ?? '';
         $this->name = $product->name;
         $this->category = $product->category ?? '';
         $this->hpp_price = (string) $product->hpp_price;
