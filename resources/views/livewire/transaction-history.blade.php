@@ -133,71 +133,77 @@
                     <th class="px-6 py-3 text-center">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 bg-white">
+            <tbody class="bg-white">
                 @forelse($transactions as $trx)
-                    <tr class="group transition-colors hover:bg-slate-50/80" wire:key="trx-{{ $trx->id }}">
-                        <td class="px-6 py-3">
-                            <span class="rounded-md bg-slate-100 px-2 py-1 text-sm font-bold text-slate-700">#{{ str_pad((string) $trx->id, 5, '0', STR_PAD_LEFT) }}</span>
-                        </td>
-                        <td class="px-6 py-3">
-                            <div class="max-w-md space-y-1">
-                                @foreach($trx->details as $detail)
-                                    <p class="text-xs font-semibold text-slate-700">
-                                        • {{ $detail->product?->name ?? 'Produk dihapus' }}
-                                        <span class="text-slate-500 font-normal">({{ $detail->qty }}x)</span>
-                                    </p>
-                                @endforeach
-                            </div>
-                        </td>
-                        <td class="px-6 py-3">
-                            <p class="text-sm font-medium text-slate-700">{{ $trx->created_at->format('d/m/Y') }}</p>
-                            <p class="text-xs text-slate-400">{{ $trx->created_at->format('H:i:s') }}</p>
-                        </td>
-                        
-                        <td class="px-6 py-3 text-right text-sm font-semibold text-slate-700">
-                            Rp {{ number_format($trx->total_amount, 0, ',', '.') }}
-                        </td>
-                        <td class="px-6 py-3 text-right text-sm text-slate-500">
-                            Rp {{ number_format($trx->total_hpp, 0, ',', '.') }}
-                        </td>
-                        <td class="px-6 py-3 text-right">
-                            <span class="text-sm font-bold {{ $trx->total_profit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
-                                Rp {{ number_format($trx->total_profit, 0, ',', '.') }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-3 text-center">
-                            <div class="flex items-center justify-center gap-1">
-                                <button
-                                    wire:click="viewDetail({{ $trx->id }})"
-                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 active:scale-95"
-                                    title="Lihat Detail"
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                                <button
-                                    wire:click="reprintReceipt({{ $trx->id }})"
-                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-pink-50 hover:text-pink-600 active:scale-95"
-                                    title="Cetak Ulang Struk"
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                    </svg>
-                                </button>
-                                <button
-                                    wire:click="confirmDelete({{ $trx->id }})"
-                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600 active:scale-95"
-                                    title="Hapus Transaksi"
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    @php $detailCount = $trx->details->count(); $detailCount = max($detailCount, 1); @endphp
+                    @foreach($trx->details as $loopIndex => $detail)
+                        <tr class="transition-colors hover:bg-slate-50/80 border-t border-slate-100" wire:key="trx-{{ $trx->id }}-detail-{{ $loopIndex }}">
+
+                            {{-- No. Transaksi — hanya di baris pertama, rowspan ke bawah --}}
+                            @if($loopIndex === 0)
+                                <td class="px-6 py-3 align-middle" rowspan="{{ $detailCount }}">
+                                    <span class="rounded-md bg-slate-100 px-2 py-1 text-sm font-bold text-slate-700">#{{ str_pad((string) $trx->id, 5, '0', STR_PAD_LEFT) }}</span>
+                                </td>
+                            @endif
+
+                            {{-- Nama Produk — 1 produk per baris --}}
+                            <td class="px-6 py-2.5">
+                                <p class="text-xs font-semibold text-slate-700">{{ $detail->product?->name ?? 'Produk dihapus' }}</p>
+                                <p class="text-[11px] text-slate-400">Qty: {{ $detail->qty }}x &nbsp;·&nbsp; Rp {{ number_format($detail->price, 0, ',', '.') }}/pcs</p>
+                            </td>
+
+                            {{-- Tanggal & Waktu — hanya di baris pertama --}}
+                            @if($loopIndex === 0)
+                                <td class="px-6 py-3 align-middle" rowspan="{{ $detailCount }}">
+                                    <p class="text-sm font-medium text-slate-700">{{ $trx->created_at->format('d/m/Y') }}</p>
+                                    <p class="text-xs text-slate-400">{{ $trx->created_at->format('H:i:s') }}</p>
+                                </td>
+                                <td class="px-6 py-3 text-right align-middle text-sm font-semibold text-slate-700" rowspan="{{ $detailCount }}">
+                                    Rp {{ number_format($trx->total_amount, 0, ',', '.') }}
+                                </td>
+                                <td class="px-6 py-3 text-right align-middle text-sm text-slate-500" rowspan="{{ $detailCount }}">
+                                    Rp {{ number_format($trx->total_hpp, 0, ',', '.') }}
+                                </td>
+                                <td class="px-6 py-3 text-right align-middle" rowspan="{{ $detailCount }}">
+                                    <span class="text-sm font-bold {{ $trx->total_profit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                                        Rp {{ number_format($trx->total_profit, 0, ',', '.') }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-center align-middle" rowspan="{{ $detailCount }}">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button
+                                            wire:click="viewDetail({{ $trx->id }})"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-blue-50 hover:text-blue-600 active:scale-95"
+                                            title="Lihat Detail"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            wire:click="reprintReceipt({{ $trx->id }})"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-pink-50 hover:text-pink-600 active:scale-95"
+                                            title="Cetak Ulang Struk"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            wire:click="confirmDelete({{ $trx->id }})"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600 active:scale-95"
+                                            title="Hapus Transaksi"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            @endif
+                        </tr>
+                    @endforeach
                 @empty
                     <tr>
                         <td colspan="7" class="px-6 py-16 text-center">
