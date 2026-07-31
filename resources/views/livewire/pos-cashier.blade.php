@@ -2,7 +2,7 @@
     x-data="{
         showReceipt: false,
         showPaymentModal: @entangle('showPaymentModal'),
-        receiptData: { total: 0, received: 0, change: 0, items: [] }
+        receiptData: { subtotal: 0, discountPercent: 0, discountAmount: 0, total: 0, received: 0, change: 0, items: [] }
     }"
     x-on:checkout-success.window="receiptData = $event.detail; showReceipt = true; $nextTick(() => { window.print(); showReceipt = false; })"
     class="flex h-screen flex-col overflow-hidden bg-slate-50"
@@ -234,19 +234,75 @@
             </div>
 
             {{-- Checkout Footer --}}
-            <div class="border-t border-slate-200 bg-white p-5">
-                {{-- Total --}}
-                <div class="mb-4 flex items-end justify-between">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Bayar</p>
-                        <p class="text-sm text-slate-500">{{ count($cart) }} item unik</p>
+            <div class="border-t border-slate-200 bg-white p-4">
+
+                {{-- Discount Input --}}
+                <div class="mb-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3">
+                    <div class="mb-2 flex items-center justify-between">
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-500">🏷️ Diskon</p>
+                        @if($discountPercent > 0)
+                            <button wire:click="clearDiscount" class="text-xs font-medium text-red-400 hover:text-red-600 transition">
+                                Hapus Diskon
+                            </button>
+                        @endif
                     </div>
-                    <p class="text-3xl font-extrabold tracking-tight text-slate-800">
-                        Rp {{ number_format($totalAmount, 0, ',', '.') }}
-                    </p>
+                    {{-- Quick Discount Presets --}}
+                    <div class="mb-2 flex items-center gap-1.5">
+                        @foreach([5, 10, 15, 20, 25] as $pct)
+                            <button
+                                wire:click="applyQuickDiscount({{ $pct }})"
+                                class="flex-1 rounded-lg py-1 text-xs font-bold transition active:scale-95
+                                    {{ $discountPercent == $pct
+                                        ? 'bg-pink-500 text-white shadow-sm'
+                                        : 'bg-white border border-slate-200 text-slate-600 hover:border-pink-300 hover:text-pink-600'
+                                    }}"
+                            >{{ $pct }}%</button>
+                        @endforeach
+                    </div>
+                    {{-- Manual Input --}}
+                    <div class="relative">
+                        <input
+                            type="text"
+                            wire:model.live.debounce.400ms="discountPercentInput"
+                            placeholder="Ketik % diskon manual..."
+                            class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-10 text-sm font-bold text-slate-700 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                        >
+                        <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">%</span>
+                    </div>
+                    {{-- Discount Result --}}
+                    @if($discountAmount > 0)
+                        <div class="mt-2 flex items-center justify-between rounded-lg bg-pink-50 px-3 py-1.5">
+                            <span class="text-xs font-medium text-pink-600">Hemat</span>
+                            <span class="text-sm font-extrabold text-pink-600">- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
                 </div>
 
-                {{-- Checkout Button ─── --}}
+                {{-- Subtotal & Total --}}
+                <div class="mb-3">
+                    @if($discountAmount > 0)
+                        <div class="flex items-center justify-between text-sm text-slate-400 mb-1">
+                            <span>Subtotal</span>
+                            <span>Rp {{ number_format($subtotalBeforeDiscount, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm text-pink-500 mb-1">
+                            <span>Diskon {{ $discountPercent }}%</span>
+                            <span>- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="my-1 border-t border-dashed border-slate-200"></div>
+                    @endif
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Bayar</p>
+                            <p class="text-xs text-slate-400">{{ count($cart) }} item</p>
+                        </div>
+                        <p class="text-3xl font-extrabold tracking-tight text-slate-800">
+                            Rp {{ number_format($totalAmount, 0, ',', '.') }}
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Checkout Button --}}
                 <button
                     wire:click="openPaymentModal"
                     @if(empty($cart)) disabled @endif
@@ -286,9 +342,23 @@
                 </div>
 
                 {{-- Bill Details --}}
-                <div class="mb-4 rounded-xl bg-pink-50 p-4 text-center">
+                <div class="mb-4 rounded-xl bg-pink-50 p-4">
+                    @if($discountAmount > 0)
+                        <div class="flex items-center justify-between text-sm text-slate-500 mb-1">
+                            <span>Subtotal</span>
+                            <span>Rp {{ number_format($subtotalBeforeDiscount, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm font-semibold text-pink-600 mb-2">
+                            <span>🏷️ Diskon {{ $discountPercent }}%</span>
+                            <span>- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="border-t border-pink-200 pt-2">
+                    @endif
                     <p class="text-xs font-semibold uppercase tracking-wider text-pink-700">Total Tagihan</p>
                     <p class="mt-1 text-3xl font-black text-pink-600">Rp {{ number_format($totalAmount, 0, ',', '.') }}</p>
+                    @if($discountAmount > 0)
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Cash Received Input --}}
@@ -393,9 +463,23 @@
             </div>
 
             <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-top: 5px;">
-                <span>TOTAL</span>
-                <span x-text="'Rp ' + receiptData.total.toLocaleString('id-ID')"></span>
+                <span>SUBTOTAL</span>
+                <span x-text="'Rp ' + receiptData.subtotal.toLocaleString('id-ID')"></span>
             </div>
+
+            <template x-if="receiptData.discountPercent > 0">
+                <div style="display: flex; justify-content: space-between; margin-top: 3px; font-size: 11px; color: #e11d48;">
+                    <span x-text="'Diskon ' + receiptData.discountPercent + '%'"></span>
+                    <span x-text="'- Rp ' + receiptData.discountAmount.toLocaleString('id-ID')"></span>
+                </div>
+            </template>
+
+            <template x-if="receiptData.discountPercent > 0">
+                <div style="border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px;">
+                    <span>TOTAL</span>
+                    <span x-text="'Rp ' + receiptData.total.toLocaleString('id-ID')"></span>
+                </div>
+            </template>
 
             <div style="display: flex; justify-content: space-between; margin-top: 3px; font-size: 11px;">
                 <span>Bayar (Cash)</span>

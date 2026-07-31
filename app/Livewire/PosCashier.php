@@ -37,6 +37,16 @@ class PosCashier extends Component
 
     public string $flashType = 'success';
 
+    // ─── Discount ────────────────────────────────────────────────
+
+    public string $discountPercentInput = '';
+
+    public float $discountPercent = 0;
+
+    public int $discountAmount = 0;
+
+    public int $subtotalBeforeDiscount = 0;
+
     // ─── Scan Barcode & Process Search ──────────────────────────
 
     public function processSearch(): void
@@ -190,11 +200,49 @@ class PosCashier extends Component
 
     private function calculateTotal(): void
     {
-        $this->totalAmount = 0;
+        $subtotal = 0;
 
         foreach ($this->cart as $item) {
-            $this->totalAmount += $item['subtotal'];
+            $subtotal += $item['subtotal'];
         }
+
+        $this->subtotalBeforeDiscount = $subtotal;
+
+        // Apply discount
+        if ($this->discountPercent > 0) {
+            $this->discountAmount = (int) round($subtotal * $this->discountPercent / 100);
+        } else {
+            $this->discountAmount = 0;
+        }
+
+        $this->totalAmount = max(0, $subtotal - $this->discountAmount);
+    }
+
+    public function updatedDiscountPercentInput(): void
+    {
+        // Allow only numeric input with max 1 decimal
+        $clean = preg_replace('/[^0-9.]/', '', $this->discountPercentInput) ?? '';
+        // Clamp between 0 and 100
+        $value = min(100, max(0, (float) $clean));
+        $this->discountPercent = $value;
+        $this->discountPercentInput = $clean;
+        $this->calculateTotal();
+    }
+
+    public function applyQuickDiscount(float $percent): void
+    {
+        $this->discountPercent = $percent;
+        $this->discountPercentInput = (string) $percent;
+        $this->calculateTotal();
+        $this->dispatch('scan-barcode-done');
+    }
+
+    public function clearDiscount(): void
+    {
+        $this->discountPercent = 0;
+        $this->discountPercentInput = '';
+        $this->discountAmount = 0;
+        $this->calculateTotal();
     }
 
     // ─── Payment Modal & Calculations ──────────────────────────
@@ -222,7 +270,6 @@ class PosCashier extends Component
 
     public function updatedCashReceivedInput(): void
     {
-        // Filter out non-numeric characters
         $clean = preg_replace('/[^0-9]/', '', $this->cashReceivedInput) ?? '';
         $this->cashReceivedInput = $clean;
         $this->cashReceived = $clean !== '' ? (int) $clean : 0;
@@ -251,32 +298,37 @@ class PosCashier extends Component
         }
 
         DB::transaction(function (): void {
-            $totalAmount = 0;
+            $subtotal = 0;
             $totalHpp = 0;
 
             foreach ($this->cart as $item) {
-                $totalAmount += $item['price'] * $item['qty'];
+                $subtotal += $item['price'] * $item['qty'];
                 $totalHpp += $item['hpp'] * $item['qty'];
             }
 
-            $totalProfit = $totalAmount - $totalHpp;
+            // Calculate discount
+            $discountAmount = $this->discountAmount;
+            $totalAmount    = max(0, $subtotal - $discountAmount);
+            $totalProfit    = $totalAmount - $totalHpp;
 
             $transaction = Transaction::create([
-                'total_amount' => $totalAmount,
-                'total_hpp' => $totalHpp,
-                'total_profit' => $totalProfit,
-                'cash_received' => $this->cashReceived,
-                'cash_change' => $this->changeAmount,
+                'total_amount'     => $totalAmount,
+                'total_hpp'        => $totalHpp,
+                'total_profit'     => $totalProfit,
+                'cash_received'    => $this->cashReceived,
+                'cash_change'      => $this->changeAmount,
+                'discount_percent' => $this->discountPercent,
+                'discount_amount'  => $discountAmount,
             ]);
 
             foreach ($this->cart as $item) {
                 TransactionDetail::create([
                     'transaction_id' => $transaction->id,
-                    'product_id' => $item['product_id'],
-                    'price' => $item['price'],
-                    'hpp' => $item['hpp'],
-                    'qty' => $item['qty'],
-                    'subtotal' => $item['price'] * $item['qty'],
+                    'product_id'     => $item['product_id'],
+                    'price'          => $item['price'],
+                    'hpp'            => $item['hpp'],
+                    'qty'            => $item['qty'],
+                    'subtotal'       => $item['price'] * $item['qty'],
                 ]);
 
                 Product::where('id', $item['product_id'])
@@ -285,20 +337,27 @@ class PosCashier extends Component
         });
 
         $this->dispatch('checkout-success',
-            total: $this->totalAmount,
-            received: $this->cashReceived,
-            change: $this->changeAmount,
-            items: array_values($this->cart)
+            subtotal:        $this->subtotalBeforeDiscount,
+            discountPercent: $this->discountPercent,
+            discountAmount:  $this->discountAmount,
+            total:           $this->totalAmount,
+            received:        $this->cashReceived,
+            change:          $this->changeAmount,
+            items:           array_values($this->cart)
         );
 
         $this->showPaymentModal = false;
         $this->cart = [];
         $this->totalAmount = 0;
+        $this->subtotalBeforeDiscount = 0;
+        $this->discountPercent = 0;
+        $this->discountPercentInput = '';
+        $this->discountAmount = 0;
         $this->cashReceived = 0;
         $this->cashReceivedInput = '';
         $this->changeAmount = 0;
         $this->setFlash('Transaksi berhasil! Struk sedang dicetak...', 'success');
-        $this->dispatch('scan-barcode-done'); // Refocus main search input
+        $this->dispatch('scan-barcode-done');
     }
 
     // ─── Helpers ────────────────────────────────────────────────
