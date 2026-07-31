@@ -357,22 +357,25 @@
                 </div>
 
                 {{-- Option 1: Retur/Tukar --}}
-                <div class="mb-3 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4">
+                <div class="mb-3 rounded-xl p-4" style="border: 2px solid #6ee7b7; background-color: #ecfdf5;">
                     <div class="mb-2 flex items-center gap-2">
-                        <div class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500">
-                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex h-7 w-7 items-center justify-center rounded-full" style="background-color: #10b981;">
+                            <svg class="h-4 w-4" fill="none" stroke="white" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
                         </div>
-                        <p class="font-bold text-emerald-800">Retur / Tukar Produk</p>
+                        <p class="font-bold" style="color: #065f46;">Retur / Tukar Produk</p>
                     </div>
-                    <p class="mb-3 text-xs text-emerald-700">
+                    <p class="mb-3 text-xs" style="color: #047857;">
                         Transaksi dihapus dan <strong>stok produk dikembalikan ke rak</strong>. Gunakan ini jika customer ingin menukar produk. Setelah ini, buat transaksi baru dengan produk pengganti.
                     </p>
                     <button
                         wire:click="deleteTransaction"
                         wire:loading.attr="disabled"
-                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold text-white shadow-sm transition active:scale-95 disabled:opacity-50"
+                        style="background-color: #10b981;"
+                        onmouseover="this.style.backgroundColor='#059669'"
+                        onmouseout="this.style.backgroundColor='#10b981'"
                     >
                         <span wire:loading.remove wire:target="deleteTransaction">✅ Retur & Kembalikan Stok</span>
                         <span wire:loading wire:target="deleteTransaction" class="flex items-center gap-2">
@@ -383,22 +386,25 @@
                 </div>
 
                 {{-- Option 2: Hapus Permanen --}}
-                <div class="mb-5 rounded-xl border-2 border-red-200 bg-red-50 p-4">
+                <div class="mb-5 rounded-xl p-4" style="border: 2px solid #fca5a5; background-color: #fff1f2;">
                     <div class="mb-2 flex items-center gap-2">
-                        <div class="flex h-7 w-7 items-center justify-center rounded-full bg-red-500">
-                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex h-7 w-7 items-center justify-center rounded-full" style="background-color: #ef4444;">
+                            <svg class="h-4 w-4" fill="none" stroke="white" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </div>
-                        <p class="font-bold text-red-800">Hapus Permanen</p>
+                        <p class="font-bold" style="color: #991b1b;">Hapus Permanen</p>
                     </div>
-                    <p class="mb-3 text-xs text-red-700">
+                    <p class="mb-3 text-xs" style="color: #b91c1c;">
                         Transaksi dihapus dan <strong>stok produk TIDAK dikembalikan</strong>. Gunakan ini jika data transaksi salah input atau produk memang sudah tidak ada.
                     </p>
                     <button
                         wire:click="deleteTransactionPermanent"
                         wire:loading.attr="disabled"
-                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 active:scale-95 disabled:opacity-50"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold text-white shadow-sm transition active:scale-95 disabled:opacity-50"
+                        style="background-color: #dc2626;"
+                        onmouseover="this.style.backgroundColor='#b91c1c'"
+                        onmouseout="this.style.backgroundColor='#dc2626'"
                     >
                         <span wire:loading.remove wire:target="deleteTransactionPermanent">🗑️ Hapus Permanen (Stok Tetap)</span>
                         <span wire:loading wire:target="deleteTransactionPermanent" class="flex items-center gap-2">
