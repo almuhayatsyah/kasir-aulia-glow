@@ -164,7 +164,7 @@ class TransactionHistory extends Component
             DB::transaction(function (): void {
                 $transaction = Transaction::with('details')->findOrFail($this->deletingTransactionId);
 
-                // Restore product stock for each detail
+                // Restore product stock for each detail (Retur/Tukar)
                 foreach ($transaction->details as $detail) {
                     Product::where('id', $detail->product_id)
                         ->increment('stock', $detail->qty);
@@ -175,7 +175,31 @@ class TransactionHistory extends Component
                 $transaction->delete();
             });
 
-            $this->setToast('Transaksi ' . $this->deletingTransactionCode . ' berhasil dihapus. Stok produk telah dikembalikan.', 'success');
+            $this->setToast('Transaksi ' . $this->deletingTransactionCode . ' diretur. Stok produk telah dikembalikan ke rak.', 'success');
+        } catch (\Exception $e) {
+            $this->setToast('Gagal memproses retur. Silakan coba lagi.', 'error');
+        }
+
+        $this->closeDeleteModal();
+    }
+
+    public function deleteTransactionPermanent(): void
+    {
+        if (! $this->deletingTransactionId) {
+            $this->closeDeleteModal();
+            return;
+        }
+
+        try {
+            DB::transaction(function (): void {
+                $transaction = Transaction::with('details')->findOrFail($this->deletingTransactionId);
+
+                // ⚠️ Stok TIDAK dikembalikan — produk memang sudah terjual
+                $transaction->details()->delete();
+                $transaction->delete();
+            });
+
+            $this->setToast('Transaksi ' . $this->deletingTransactionCode . ' dihapus permanen. Stok produk tidak dikembalikan.', 'success');
         } catch (\Exception $e) {
             $this->setToast('Gagal menghapus transaksi. Silakan coba lagi.', 'error');
         }

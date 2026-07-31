@@ -341,42 +341,80 @@
                 x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95"
                 x-transition:enter-end="opacity-100 scale-100"
-                class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
+                class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
             >
-                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
+                {{-- Header --}}
+                <div class="mb-5 flex items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                        <svg class="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Pilih Jenis Penghapusan</h3>
+                        <p class="mt-1 text-sm text-slate-500">Transaksi <strong class="text-slate-700">{{ $deletingTransactionCode }}</strong></p>
+                    </div>
                 </div>
 
-                <h3 class="text-lg font-bold text-slate-800">Hapus Transaksi?</h3>
-                <p class="mt-2 text-sm text-slate-500">
-                    Transaksi <strong class="text-slate-700">{{ $deletingTransactionCode }}</strong> akan dihapus permanen dan <strong class="text-emerald-600">stok produk akan dikembalikan</strong>.
-                </p>
-                <p class="mt-1 text-xs text-red-400">Tindakan ini tidak bisa dibatalkan.</p>
-
-                <div class="mt-5 flex items-center justify-end gap-3">
-                    <button
-                        wire:click="closeDeleteModal"
-                        class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-95"
-                    >
-                        Batal
-                    </button>
+                {{-- Option 1: Retur/Tukar --}}
+                <div class="mb-3 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4">
+                    <div class="mb-2 flex items-center gap-2">
+                        <div class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500">
+                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </div>
+                        <p class="font-bold text-emerald-800">Retur / Tukar Produk</p>
+                    </div>
+                    <p class="mb-3 text-xs text-emerald-700">
+                        Transaksi dihapus dan <strong>stok produk dikembalikan ke rak</strong>. Gunakan ini jika customer ingin menukar produk. Setelah ini, buat transaksi baru dengan produk pengganti.
+                    </p>
                     <button
                         wire:click="deleteTransaction"
                         wire:loading.attr="disabled"
-                        class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-95 disabled:opacity-50"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-600 active:scale-95 disabled:opacity-50"
                     >
-                        <span wire:loading.remove wire:target="deleteTransaction">Ya, Hapus</span>
+                        <span wire:loading.remove wire:target="deleteTransaction">✅ Retur & Kembalikan Stok</span>
                         <span wire:loading wire:target="deleteTransaction" class="flex items-center gap-2">
-                            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                            Memproses...
+                        </span>
+                    </button>
+                </div>
+
+                {{-- Option 2: Hapus Permanen --}}
+                <div class="mb-5 rounded-xl border-2 border-red-200 bg-red-50 p-4">
+                    <div class="mb-2 flex items-center gap-2">
+                        <div class="flex h-7 w-7 items-center justify-center rounded-full bg-red-500">
+                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
+                        </div>
+                        <p class="font-bold text-red-800">Hapus Permanen</p>
+                    </div>
+                    <p class="mb-3 text-xs text-red-700">
+                        Transaksi dihapus dan <strong>stok produk TIDAK dikembalikan</strong>. Gunakan ini jika data transaksi salah input atau produk memang sudah tidak ada.
+                    </p>
+                    <button
+                        wire:click="deleteTransactionPermanent"
+                        wire:loading.attr="disabled"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 active:scale-95 disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="deleteTransactionPermanent">🗑️ Hapus Permanen (Stok Tetap)</span>
+                        <span wire:loading wire:target="deleteTransactionPermanent" class="flex items-center gap-2">
+                            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                             Menghapus...
                         </span>
                     </button>
                 </div>
+
+                {{-- Cancel --}}
+                <button
+                    wire:click="closeDeleteModal"
+                    class="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 active:scale-95"
+                >
+                    Batal
+                </button>
             </div>
         </div>
     @endif
