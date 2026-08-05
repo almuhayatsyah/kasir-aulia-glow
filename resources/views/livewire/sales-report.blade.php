@@ -10,15 +10,48 @@
             <p class="text-xs text-slate-400">Rekap omzet, HPP, & profit bersih</p>
         </div>
 
-        <button
-            x-on:click="$dispatch('print-report')"
-            class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-pink-500/25 transition-all hover:shadow-lg hover:shadow-pink-500/30 active:scale-95"
-        >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Cetak Rekap (Thermal)
-        </button>
+        <div class="flex items-center gap-2">
+            {{-- Export Excel --}}
+            <a
+                href="{{ route('export.laporan.excel', array_filter(['dari' => $dateFrom, 'sampai' => $dateTo])) }}"
+                target="_blank"
+                class="inline-flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-semibold transition active:scale-95"
+                style="border-color: #6ee7b7; background-color: #ecfdf5; color: #065f46;"
+                onmouseover="this.style.backgroundColor='#d1fae5'"
+                onmouseout="this.style.backgroundColor='#ecfdf5'"
+            >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </a>
+
+            {{-- Export PDF --}}
+            <a
+                href="{{ route('export.laporan.pdf', array_filter(['dari' => $dateFrom, 'sampai' => $dateTo])) }}"
+                target="_blank"
+                class="inline-flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-semibold transition active:scale-95"
+                style="border-color: #fca5a5; background-color: #fff1f2; color: #991b1b;"
+                onmouseover="this.style.backgroundColor='#ffe4e6'"
+                onmouseout="this.style.backgroundColor='#fff1f2'"
+            >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                PDF
+            </a>
+
+            {{-- Print --}}
+            <button
+                x-on:click="$dispatch('print-report')"
+                class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-pink-500/25 transition-all hover:shadow-lg hover:shadow-pink-500/30 active:scale-95"
+            >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Cetak Rekap (Thermal)
+            </button>
+        </div>
     </header>
 
     {{-- ═══ MAIN SCROLLABLE CONTENT ═══ --}}

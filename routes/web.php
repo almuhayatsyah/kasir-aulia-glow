@@ -37,5 +37,7 @@ Route::middleware('auth')->group(function () {
     // ─── Export ──────────────────────────────────────────────
     Route::get('/export/transaksi/excel', [ExportController::class, 'exportExcel'])->name('export.transaksi.excel');
     Route::get('/export/transaksi/pdf', [ExportController::class, 'exportPdf'])->name('export.transaksi.pdf');
+    Route::get('/export/laporan/excel', [ExportController::class, 'exportSalesReportExcel'])->name('export.laporan.excel');
+    Route::get('/export/laporan/pdf', [ExportController::class, 'exportSalesReportPdf'])->name('export.laporan.pdf');
 });
 
