@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExportController;
 use App\Livewire\Dashboard;
 use App\Livewire\Login;
 use App\Livewire\PosCashier;
@@ -32,4 +33,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/transaksi', TransactionHistory::class)->name('transaksi');
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/laporan', SalesReport::class)->name('laporan');
+
+    // ─── Export ──────────────────────────────────────────────
+    Route::get('/export/transaksi/excel', [ExportController::class, 'exportExcel'])->name('export.transaksi.excel');
+    Route::get('/export/transaksi/pdf', [ExportController::class, 'exportPdf'])->name('export.transaksi.pdf');
 });
+

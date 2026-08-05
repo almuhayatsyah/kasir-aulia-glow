@@ -85,7 +85,7 @@
             @endforeach
         </div>
 
-        {{-- Date Inputs & Search --}}
+        {{-- Date Inputs & Search & Export --}}
         <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
                 <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Dari</label>
@@ -112,9 +112,35 @@
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
-                    placeholder="Cari No. Transaksi..."
+                    placeholder="Cari No. Transaksi atau Nama Produk..."
                     class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm text-slate-600 placeholder-slate-400 transition focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
                 >
+            </div>
+
+            {{-- Export Buttons --}}
+            <div class="flex items-center gap-2 shrink-0">
+                <a
+                    href="{{ route('export.transaksi.excel', array_filter(['dari' => $dateFrom, 'sampai' => $dateTo, 'q' => $search])) }}"
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-95"
+                    title="Export ke Excel"
+                >
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Excel
+                </a>
+                <a
+                    href="{{ route('export.transaksi.pdf', array_filter(['dari' => $dateFrom, 'sampai' => $dateTo, 'q' => $search])) }}"
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95"
+                    title="Export ke PDF"
+                >
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    PDF
+                </a>
             </div>
         </div>
     </div>
